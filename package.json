@@ -3,13 +3,13 @@
     "version": "0.0.0",
     "description": "RESTful Web Server and Single Page Application",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Chase Rapp",
+        "email": "rapp5227@stthomas.edu"
     },
     "main": "server.js",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/rapp5227/Project3_RestSpa"
     },
     "dependencies": {
         "express": "^4.17.1",

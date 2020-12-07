@@ -31,7 +31,7 @@ app.use(express.static(public_dir));
 // Respond with list of codes and their corresponding incident type
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    
+
     res.status(200).type('json').send({});
 });
 
@@ -48,7 +48,44 @@ app.get('/neighborhoods', (req, res) => {
 app.get('/incidents', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
 
-    res.status(200).type('json').send({});
+	let search = url.searchParams
+
+	let query = "SELECT * from Incidents ${where} LIMIT ${limit} "
+	let params = []
+	let limit = 1000
+	let wheres = []
+
+	if(search.has('start_date')) {
+		//TODO
+	}
+
+	if(search.has('end_date')) {
+		//TODO
+	}
+
+	if(search.has('code')) {
+		wheres.push('code IN (' + search.get('code') + ')')
+	}
+
+	if(search.has('grid')) {
+		//TODO
+	}
+
+	if(search.has('neighborhood')) {
+		//TODO
+	}
+
+	if(search.has('limit')) {
+		limit = search.get('limit')
+	}
+
+	query = query.replace("${limit}",limit)
+	console.log(wheres)
+	databaseSelect(query,params).then((data) => {
+		res.status(200).type('json').send(data)
+	}).catch((err) => {
+		res.status(500).type('text').send(err)
+	})
 });
 
 // REST API: PUT /new-incident
@@ -60,7 +97,7 @@ app.put('/new-incident', (req, res) => {
 });
 
 
-// Create Promise for SQLite3 database SELECT query 
+// Create Promise for SQLite3 database SELECT query
 function databaseSelect(query, params) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
