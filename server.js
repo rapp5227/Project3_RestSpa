@@ -5,7 +5,6 @@ let path = require('path');
 let express = require('express');
 let sqlite3 = require('sqlite3');
 
-
 let app = express();
 let port = 8000;
 
@@ -47,44 +46,80 @@ app.get('/neighborhoods', (req, res) => {
 // Respond with list of crime incidents
 app.get('/incidents', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-
 	let search = url.searchParams
 
-	let query = "SELECT * from Incidents ${where} LIMIT ${limit} "
+	let query = "SELECT * from Incidents ${where} ORDER BY date_time DESC LIMIT ?"
+	let wheres = []
 	let params = []
 	let limit = 1000
-	let wheres = []
+
+	let prepareIn = function(sql,query) {
+		// performs prepared statement work for 'WHERE var IN (p, q, ...)'
+		let stmt = sql + ' IN (?)'
+		let values = search.get(query).split(',')
+
+		let q = ''
+		for(x of values) {
+			q = q + ',?'
+			params.push(x)
+		}
+		q=q.substring(1)
+		wheres.push(stmt.replace('?',q))
+	}
 
 	if(search.has('start_date')) {
-		//TODO
+		wheres.push('date_time > ?')
+		params.push(search.get('start_date'))
 	}
 
 	if(search.has('end_date')) {
-		//TODO
+		wheres.push('date_time <= ?')
+		params.push(search.get('end_date') + 'T23:59:59')
 	}
 
 	if(search.has('code')) {
-		wheres.push('code IN (' + search.get('code') + ')')
+		prepareIn('code','code')
 	}
 
 	if(search.has('grid')) {
-		//TODO
+		prepareIn('police_grid','grid')
 	}
 
 	if(search.has('neighborhood')) {
-		//TODO
+		prepareIn('neighborhood_number','neighborhood')
 	}
 
 	if(search.has('limit')) {
 		limit = search.get('limit')
 	}
 
-	query = query.replace("${limit}",limit)
-	console.log(wheres)
+	// assemble WHERE statement
+	let whereString = '' // initialized empty in case there are no conditions
+
+	if(wheres.length > 0) {
+		whereString = 'WHERE '
+
+		for(i of wheres) {
+			whereString = whereString.concat(i, ' AND ')
+		}
+		whereString = whereString.substring(0,whereString.lastIndexOf('AND')-1) // strips trailing AND
+	}
+
+	// finalize query
+	query = query.replace("${where}",whereString)
+	params.push(limit)
+
+	console.log(query)
 	databaseSelect(query,params).then((data) => {
+		for(x of data) { // splits date and time into two attributes
+			let date_time = x.date_time.split('T')
+			x.date = date_time[0]
+			x.time = date_time[1]
+			delete x.date_time
+		}
 		res.status(200).type('json').send(data)
 	}).catch((err) => {
-		res.status(500).type('text').send(err)
+		res.status(500).type('text').send('500: ' + err)
 	})
 });
 
