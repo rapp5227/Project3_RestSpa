@@ -30,16 +30,16 @@ app.use(express.static(public_dir));
 // Respond with list of codes and their corresponding incident type
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    let inputA = querystring.parse(url.searchParams.toString());
     let input = url.search.toString();
     let codeValues = input.slice(6, input.length);
     var array = codeValues.split(',');
+    let query = 'SELECT code, incident_type as type FROM Codes ORDER BY code';
 
     if(input.indexOf("?") >= 0)
     {
         var result = [];
 
-        databaseSelect('SELECT code, incident_type as type FROM Codes ORDER BY code')
+        databaseSelect(query)
         .then((rows) => {
             for(i = 0; i<array.length; i++){
                 for(j=0; j<rows.length; j++){
@@ -50,16 +50,16 @@ app.get('/codes', (req, res) => {
             }
             res.status(200).type('json').send(result);     
         }).catch((error)=> {
-            console.log("error");
+            res.status(500).type('text').send('500: ' + error)
         });   
     }
 
     else{
-        databaseSelect('SELECT code, incident_type as type FROM Codes ORDER BY code')
+        databaseSelect(query)
         .then((rows) => {
             res.status(200).type('json').send(rows);     
         }).catch((error)=> {
-            console.log("error");
+            res.status(500).type('text').send('500: ' + error)
         });
     }
 });
