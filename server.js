@@ -30,8 +30,38 @@ app.use(express.static(public_dir));
 // Respond with list of codes and their corresponding incident type
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+    let inputA = querystring.parse(url.searchParams.toString());
+    let input = url.search.toString();
+    let codeValues = input.slice(6, input.length);
+    var array = codeValues.split(',');
 
-    res.status(200).type('json').send({});
+    if(input.indexOf("?") >= 0)
+    {
+        var result = [];
+
+        databaseSelect('SELECT code, incident_type as type FROM Codes')
+        .then((rows) => {
+            for(i = 0; i<array.length; i++){
+                for(j=0; j<rows.length; j++){
+                    if(array[i]== rows[j].code){
+                        result.push(rows[j]);
+                    }
+                }
+            }
+            res.status(200).type('json').send(result);     
+        }).catch((error)=> {
+            console.log("error");
+        });   
+    }
+
+    else{
+        databaseSelect('SELECT code, incident_type as type FROM Codes')
+        .then((rows) => {
+            res.status(200).type('json').send(rows);     
+        }).catch((error)=> {
+            console.log("error");
+        });
+    }
 });
 
 // REST API: GET /neighborhoods
