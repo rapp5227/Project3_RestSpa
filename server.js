@@ -39,7 +39,7 @@ app.get('/codes', (req, res) => {
     {
         var result = [];
 
-        databaseSelect('SELECT code, incident_type as type FROM Codes')
+        databaseSelect('SELECT code, incident_type as type FROM Codes ORDER BY code')
         .then((rows) => {
             for(i = 0; i<array.length; i++){
                 for(j=0; j<rows.length; j++){
@@ -55,7 +55,7 @@ app.get('/codes', (req, res) => {
     }
 
     else{
-        databaseSelect('SELECT code, incident_type as type FROM Codes')
+        databaseSelect('SELECT code, incident_type as type FROM Codes ORDER BY code')
         .then((rows) => {
             res.status(200).type('json').send(rows);     
         }).catch((error)=> {
