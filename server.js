@@ -69,7 +69,38 @@ app.get('/codes', (req, res) => {
 app.get('/neighborhoods', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
 
-    res.status(200).type('json').send({});
+    let input = url.search.toString();
+    let neighborhood = input.slice(6, input.length);
+    var array = neighborhood.split(',');
+    let query = 'SELECT  neighborhood_number, neighborhood_name FROM Neighborhoods ORDER BY neighborhood_name';
+
+    if(input.indexOf("?") >= 0)
+    {
+        var result = [];
+
+        databaseSelect(query)
+        .then((rows) => {
+            for(i = 0; i<array.length; i++){
+                for(j=0; j<rows.length; j++){
+                    if(array[i]== rows[j].code){
+                        result.push(rows[j]);
+                    }
+                }
+            }
+            res.status(200).type('json').send(result);     
+        }).catch((error)=> {
+            res.status(500).type('text').send('500: ' + error)
+        });   
+    }
+
+    else{
+        databaseSelect(query)
+        .then((rows) => {
+            res.status(200).type('json').send(rows);     
+        }).catch((error)=> {
+            res.status(500).type('text').send('500: ' + error)
+        });
+    }
 });
 
 // REST API: GET/incidents
