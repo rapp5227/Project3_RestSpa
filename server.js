@@ -186,21 +186,57 @@ app.get('/incidents', (req, res) => {
 // Respond with 'success' or 'error'
 app.put('/new-incident', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    var input = url.searchParams;
+    var case_number;
+    var date;
+    var time;
+    var code;
+    var incident;
+    var police_grid;
+    var neighborhood_number;
+    var block;
+    let param = [];
+    let input = url.searchParams;
+    let query = 'INSERT INTO Incidents(case_number,date_time,code,incident,police_grid,neighborhood_number,block) VALUES (?,?,?,?,?,?,?)';
+    
 
-    console.log(url);
-    databaseInsert('INSERT INTO Incidents(case_number,date_time,code,incident,police_grid,neighborhood_number,block) VALUES (?,?,?,?,?,?,?)', [input.case_number,input.date+'T'+input.time,input.code,input.incident,input.police_grid,input.neighborhood_number,input.block])
+    if(input.has('case_number')){
+        case_number = parseInt(input.get('case_number'));
+        param.push(case_number);
+        console.log(case_number);
+    }
+    if(input.has('date') && input.has('time')){
+        date = input.get('date');
+        time = input.get('time');
+        param.push(date+'T'+time);
+    }
+    if(input.has('code')){
+        code = parseInt(input.get('code'));
+        param.push(code);
+    }
+    if(input.has('incident')){
+        incident = input.get('incident')
+        param.push(incident);
+    }
+    if(input.has('police_grid')){
+        police_grid = parseInt(input.get('police_grid'));
+        param.push(police_grid);
+    }
+    if(input.has('neighborhood_number')){
+        neighborhood_number = parseInt(input.get('neighborhood_number'));
+        param.push(neighborhood_number);
+    }
+    if(input.has('block')){
+        block = input.get('block')
+        param.push(block);
+    }
+
+    databaseInsert(query, param)
     .then(()=>{
-        if(err){
-            console.log("error"); //send response
-            res.status(500).type('txt').send('Fail');
-        }
-        else{
-            res.status(200).type('txt').send('success');
-        }
-    }).catch((err)={
-
-    })
+        res.status(200).type('txt').send('success');
+    }).catch((error)=> {
+        //We didn't create a separate SELECT check for the PUT because SQL automatically prevents users from entering similar id for primary keys (which is case_number in this case)
+        res.status(500).type('text').send('500: ' + error)
+    });
 });
 
 
