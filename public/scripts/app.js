@@ -1,6 +1,6 @@
 let app;
 let map;
-let neighborhood_markers = 
+let neighborhood_markers =
 [
     {location: [44.942068, -93.020521], marker: null},
     {location: [44.977413, -93.025156], marker: null},
@@ -38,7 +38,15 @@ function init() {
                     nw: {lat: 45.008206, lng: -93.217977},
                     se: {lat: 44.883658, lng: -92.993787}
                 }
-            }
+			},
+			search: {
+				go: () => {
+					//TODO this function runs when the search entry is submitted
+					console.log(this.value)
+				},
+				placeholder: "Search",
+				value: ""
+			}
         }
     });
 
@@ -49,7 +57,7 @@ function init() {
         maxZoom: 18
     }).addTo(map);
     map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
-    
+
     let district_boundary = new L.geoJson();
     district_boundary.addTo(map);
 
