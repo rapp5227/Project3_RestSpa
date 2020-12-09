@@ -202,7 +202,6 @@ app.put('/new-incident', (req, res) => {
     if(input.has('case_number')){
         case_number = parseInt(input.get('case_number'));
         param.push(case_number);
-        console.log(case_number);
     }
     if(input.has('date') && input.has('time')){
         date = input.get('date');
