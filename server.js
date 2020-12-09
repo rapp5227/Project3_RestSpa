@@ -68,11 +68,10 @@ app.get('/codes', (req, res) => {
 // Respond with list of neighborhood ids and their corresponding neighborhood name
 app.get('/neighborhoods', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-
     let input = url.search.toString();
-    let neighborhood = input.slice(6, input.length);
+    let neighborhood = input.slice(4, input.length);
     var array = neighborhood.split(',');
-    let query = 'SELECT  neighborhood_number, neighborhood_name FROM Neighborhoods ORDER BY neighborhood_name';
+    let query = 'SELECT  neighborhood_number as id, neighborhood_name as name FROM Neighborhoods ORDER BY neighborhood_number';
 
     if(input.indexOf("?") >= 0)
     {
@@ -82,7 +81,7 @@ app.get('/neighborhoods', (req, res) => {
         .then((rows) => {
             for(i = 0; i<array.length; i++){
                 for(j=0; j<rows.length; j++){
-                    if(array[i]== rows[j].code){
+                    if(array[i]== rows[j].id){
                         result.push(rows[j]);
                     }
                 }
@@ -114,18 +113,17 @@ app.get('/incidents', (req, res) => {
 	let params = []
 	let limit = 1000
 
-	let prepareIn = function(sql,query) {
+	let prepareIn = function(variable,list) {
 		// performs prepared statement work for 'WHERE var IN (p, q, ...)'
-		let stmt = sql + ' IN (?)'
-		let values = search.get(query).split(',')
+		let stmt = variable + ' IN (?)'
+		let values = search.get(list).split(',')
 
 		let q = ''
 		for(x of values) {
 			q = q + ',?'
 			params.push(x)
 		}
-		q=q.substring(1)
-		wheres.push(stmt.replace('?',q))
+		wheres.push(stmt.replace('?',q.substring(1)))
 	}
 
 	if(search.has('start_date')) {
@@ -188,8 +186,21 @@ app.get('/incidents', (req, res) => {
 // Respond with 'success' or 'error'
 app.put('/new-incident', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+    var input = url.searchParams;
 
-    res.status(200).type('txt').send('success');
+    console.log(url);
+    databaseInsert('INSERT INTO Incidents(case_number,date_time,code,incident,police_grid,neighborhood_number,block) VALUES (?,?,?,?,?,?,?)', [input.case_number,input.date+'T'+input.time,input.code,input.incident,input.police_grid,input.neighborhood_number,input.block])
+    .then(()=>{
+        if(err){
+            console.log("error"); //send response
+            res.status(500).type('txt').send('Fail');
+        }
+        else{
+            res.status(200).type('txt').send('success');
+        }
+    }).catch((err)={
+
+    })
 });
 
 

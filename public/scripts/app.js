@@ -41,11 +41,10 @@ function init() {
 			},
 			search: {
 				go: () => {
-					//TODO this function runs when the search entry is submitted
-					console.log(this.value)
-				},
+                    go(this.value)
+                },
 				placeholder: "Search",
-				value: ""
+                value: ""
 			}
         }
     });
@@ -84,4 +83,10 @@ function getJSON(url) {
             }
         });
     });
+}
+
+function go(value) {
+    //TODO this function runs when the search entry is submitted
+    // if value is address -> convert
+    
 }
