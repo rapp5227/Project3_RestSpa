@@ -90,3 +90,32 @@ function go(value) {
     // if value is address -> convert
     
 }
+
+function getLatLng(address){
+    let api = 'https://nominatim.openstreetmap.org/search?format=json&country=United States&state=MN&city=St. Paul&street='+address;
+    return $.getJSON(api);
+}
+
+
+function addressSearch(){
+//     console.log('addressSearch');
+//    console.log(app.map.center.address);
+    getLatLng(app.map.address)
+        .then(data => {
+//             console.log(data);
+//             console.log(data[0].lat);
+//             console.log(data[0].lon);
+            
+            if(data.length > 0) {
+                app.map.center.lat = data[0].lat;
+                app.map.center.lng = data[0].lon;
+                app.map.zoom = 17;
+                map.setZoom(app.map.zoom); //set zoom for address search
+                map.panTo([app.map.center.lat, app.map.center.lng]); //pan to coordinates
+            } else {
+                alert("Address '"+app.map.address+"' not found")
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+}
