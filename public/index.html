@@ -31,8 +31,9 @@
     <div id="app">
 		<div id="leafletmap"></div>
 		<div id="inputs">
-			<input id = "searchBar" type="text" :placeholder="search.placeholder" v-model="search.value"/>
-			<button @click="search.go()">GO</button>
+            		Address
+            		<input type="text"  v-model="map.address"/>
+            		<button type="button" @click="addressSearch">Go</button>
 		</div>
     </div>
 </body>
