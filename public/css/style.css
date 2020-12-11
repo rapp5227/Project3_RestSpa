@@ -4,11 +4,87 @@
 
 #leafletmap {
     width: 800px;  /* feel free to change this! */
-    height: 600px; /* feel free to change this! */
+    height: 700px; /* feel free to change this! */
 }
 
 #inputs
 {
 	margin-top: 1rem;
 	text-align: center;
+}
+
+nav{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem;
+    background-color: lightgreen;
+    font-size: 2rem;
+    float: right;
+}
+
+a{
+    color: teal;
+}
+
+.title{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem;
+    color: teal;
+    background-color: lightgreen;
+    font-size: 3rem;
+    float: left;
+}
+
+body{
+    background-color: lightskyblue;
+    margin: 1rem;
+}
+
+.about{
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    text-align: center;
+    background-color: whitesmoke;
+    color: teal;
+    padding-left: 1rem;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.members{
+    background-color: lightgreen;
+    text-align: center;
+    padding: 0.5rem;
+    color: teal;
+    font-size: 1.5rem;
+}
+
+.column{
+    display: inline;
+    float: left;
+    width: 30%;
+    margin: 1%;
+}
+
+img{
+    display: inline;
+    max-width: 15%;
+    height: auto;
+}
+
+.half{
+    float: right;
+    display: inline;
+    width: 40%;
+    margin: 1%;
+    text-align: left;
+}
+
+.ol{
+
 }
