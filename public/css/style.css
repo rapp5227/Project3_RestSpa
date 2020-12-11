@@ -88,3 +88,20 @@ img{
 .ol{
 
 }
+
+#tableContainer
+{
+	float: left;
+	width: 50vw;
+}
+
+table, th, td
+{
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+th, td
+{
+	width: 20%;
+}

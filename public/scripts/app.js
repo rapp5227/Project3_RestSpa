@@ -45,8 +45,9 @@ function init() {
                 },
 				placeholder: "Search",
                 value: ""
-			}
-        }
+			},
+			crimes: []
+		}
     });
 
     map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
@@ -67,7 +68,9 @@ function init() {
         });
     }).catch((error) => {
         console.log('Error:', error);
-    });
+	});
+
+	updateCrimeTable(10) //TODO change the limit param here to 1000 before turning in
 }
 
 function getJSON(url) {
@@ -88,7 +91,7 @@ function getJSON(url) {
 function go(value) {
     //TODO this function runs when the search entry is submitted
     // if value is address -> convert
-    
+
 }
 
 function getLatLng(address){
@@ -105,7 +108,7 @@ function addressSearch(){
 //             console.log(data);
 //             console.log(data[0].lat);
 //             console.log(data[0].lon);
-            
+
             if(data.length > 0) {
                 app.map.center.lat = data[0].lat;
                 app.map.center.lng = data[0].lon;
@@ -118,4 +121,44 @@ function addressSearch(){
         }).catch(error => {
             console.log(error);
         });
+}
+
+function updateCrimeTable(limit=1000) {
+//TODO ask Marrinan if we should start with 1000 and then trim, or if we need to try for 1000 no matter how small the map is
+//TODO filter on what's visible on the map (look at filter function, keeping these rows blank)
+//TODO needs to update whenever the map changes
+
+	getJSON('http://localhost:8000/incidents?limit=' + limit).then(rows => {
+		let promises = new Array(rows.length)
+
+		for(let i = 0;i < rows.length;i++) {
+			promises[i] = new Promise((resolve,reject) => {
+				Promise.all([getJSON('http://localhost:8000/codes?code=' + rows[i].code),getJSON('http://localhost:8000/neighborhoods?id=' + rows[i].neighborhood_number)])
+					.then(data => {
+
+						console.log(data[0])
+						resolve({
+							date: rows[i].date,
+							time: rows[i].time,
+							neighborhood: data[1][0].name,
+							address: rows[i].block,
+							incident: data[0][0].type,
+							style: {
+								backgroundColor: tableRowColor(rows[i].code)
+							}
+						})
+					})
+			})
+		}
+
+		Promise.all(promises).then(data => {
+			app.crimes = [].concat(data) // concat is weird, but it's the only way to get the table to auto-update
+		})
+	})
+}
+
+function tableRowColor(code) {
+	// returns the table row color for the given incident code
+	//TODO needs to be fully implemented
+	return 'white'
 }

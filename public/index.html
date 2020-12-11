@@ -27,16 +27,40 @@
 </head>
 
 <body onload="init()">
-    <!-- Main app -->
-    <div class="title">
-      St. Paul Crime Map
-    </div>
-    <nav>
-      <a href="index.html">Map</a> |
-      <a href="about.html">About The Project</a> |
-    </nav>
+	<!-- Main app -->
+	<div style="height: 10rem;">
+		<div class="title">
+		St. Paul Crime Map
+		</div>
+		<nav>
+		<a href="index.html">Map</a> |
+		<a href="about.html">About The Project</a> |
+		</nav>
+	</div>
 
     <div id="app">
+		<div id = 'tableContainer'>
+			<table>
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Time</th>
+						<th>Neighborhood</th>
+						<th>Address</th>
+						<th>Incident</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="crime of crimes">
+						<td :style="crime.style"> {{ crime.date }}</td>
+						<td :style="crime.style"> {{ crime.time }}</td>
+						<td :style="crime.style"> {{ crime.neighborhood }}</td>
+						<td :style="crime.style"> {{ crime.address }}</td>
+						<td :style="crime.style"> {{ crime.incident }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		<div id="leafletmap"></div>
 		<div id="inputs">
             		Address
