@@ -162,3 +162,29 @@ function tableRowColor(code) {
 	//TODO needs to be fully implemented
 	return 'white'
 }
+
+let databaseAPI = 'http://localhost:8000';
+
+let neighborhoodImage = L.icon({
+    iconUrl: 'img/neighborhood.png',
+    iconSize: [25, 25],
+    popupAnchor: [0, -7]
+});
+
+function neighborhoodsPopups(){
+    let neighborhoodsApi = databaseAPI+'/neighborhoods';
+    $.getJSON(neighborhoodsApi)
+        .then(data => {
+            for(let n in neighborhood_markers){
+                let latLng = neighborhood_markers[n].location;
+                let name = data[n].name;
+                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(name + ' (crime count)');
+                let marker = L.marker(latLng, {title: name, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
+                neighborhood_markers[n].marker = marker;
+                // console.log(neighborhood_markers[n]);
+            }
+            
+        }); 
+}
+
+
