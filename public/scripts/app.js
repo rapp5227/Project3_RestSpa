@@ -177,9 +177,9 @@ function neighborhoodsPopups(){
         .then(data => {
             for(let n in neighborhood_markers){
                 let latLng = neighborhood_markers[n].location;
-                let name = data[n].name;
-                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(name + ' (crime count)');
-                let marker = L.marker(latLng, {title: name, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
+                let neighborhoodName = data[n].name;
+                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(neighborhoodName + ' (crime count)');
+                let marker = L.marker(latLng, {title: neighborhoodName, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
                 neighborhood_markers[n].marker = marker;
                 // console.log(neighborhood_markers[n]);
             }
