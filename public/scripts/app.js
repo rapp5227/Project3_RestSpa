@@ -159,8 +159,25 @@ function updateCrimeTable(limit=1000) {
 
 function tableRowColor(code) {
 	// returns the table row color for the given incident code
-	//TODO needs to be fully implemented
-	return 'white'
+
+	// violent crimes: red
+	// property crimes: green
+	//drug crimes: blue
+	//other: white
+
+	if (code < 500) { // murders, rapes, robberies, ag. assaults,
+		return 'red'
+	} else if (code >= 500 && code < 810 && code !== 614) { // burglaries, thefts, motor vehicle thefts
+		return 'green'
+	} else if (code >= 810 && code < 900) { // domestic assaults
+		return 'red'
+	} else if (code >= 900 && code < 1800) { // arson, property damage, graffiti
+		return 'green'
+	} else if (code >= 1800 && code < 2619) { // narcotics
+		return 'blue'
+	} else { // other, discharging weapon, proactive visits, community events
+		return 'white'
+	}
 }
 
 let databaseAPI = 'http://localhost:8000';
@@ -183,8 +200,8 @@ function neighborhoodsMarkers(){
                 neighborhood_markers[n].marker = marker;
                 // console.log(neighborhood_markers[n]);
             }
-            
-        }); 
+
+        });
 }
 
 
