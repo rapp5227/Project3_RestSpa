@@ -171,7 +171,7 @@ let neighborhoodImage = L.icon({
     popupAnchor: [0, -7]
 });
 
-function neighborhoodsPopups(){
+function neighborhoodsMarkers(){
     let neighborhoodsApi = databaseAPI+'/neighborhoods';
     $.getJSON(neighborhoodsApi)
         .then(data => {
