@@ -123,12 +123,17 @@ function addressSearch(){
         });
 }
 
-function updateCrimeTable(limit=1000) {
-//TODO ask Marrinan if we should start with 1000 and then trim, or if we need to try for 1000 no matter how small the map is
-//TODO filter on what's visible on the map (look at filter function, keeping these rows blank)
+function updateCrimeTable(limit) {
 //TODO needs to update whenever the map changes
+//TODO currently filters on neighborhood visibility, but not on whether a specific incident is visible yet
 
-	getJSON('http://localhost:8000/incidents?limit=' + limit).then(rows => {
+	let requestString = 'http://localhost:8000/incidents?neighborhood=' + visibleNeighborhoods().join(',')
+
+	if(limit) { // adds limit parameter, if specified
+		requestString += '&limit=' + limit
+	}
+
+	getJSON(requestString).then(rows => {
 		let promises = new Array(rows.length)
 
 		for(let i = 0;i < rows.length;i++) {
@@ -136,7 +141,7 @@ function updateCrimeTable(limit=1000) {
 				Promise.all([getJSON('http://localhost:8000/codes?code=' + rows[i].code),getJSON('http://localhost:8000/neighborhoods?id=' + rows[i].neighborhood_number)])
 					.then(data => {
 
-						console.log(data[0])
+						// console.log(data[0])
 						resolve({
 							date: rows[i].date,
 							time: rows[i].time,
@@ -152,7 +157,7 @@ function updateCrimeTable(limit=1000) {
 		}
 
 		Promise.all(promises).then(data => {
-			app.crimes = [].concat(data) // concat is weird, but it's the only way to get the table to auto-update
+			app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
 		})
 	})
 }
@@ -204,4 +209,24 @@ function neighborhoodsMarkers(){
         });
 }
 
+function visibleNeighborhoods() {
+	// returns a list of the neighborhood numbers that are visible on the map
+		// based on the neighborhood center, so it might look weird at times
+
+	let results = []
+
+	for(let i = 0;i < neighborhood_markers.length;i++) {
+		let x = neighborhood_markers[i]
+
+		let bounds = map.getBounds()
+
+		if(bounds.contains(L.latLng(x.location[0],x.location[1]))) {
+			results.push(i+1)
+		}
+	}
+
+	// console.log(results)
+	// console.log(results.length)
+	return results
+}
 
