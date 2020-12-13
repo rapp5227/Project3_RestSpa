@@ -70,6 +70,8 @@ function init() {
         console.log('Error:', error);
 	});
 
+	setCrimeNumber()
+    	neighborhoodsMarkers()
 	updateCrimeTable(10) //TODO change the limit param here to 1000 before turning in
 }
 
@@ -197,15 +199,42 @@ function neighborhoodsMarkers(){
     let neighborhoodsApi = databaseAPI+'/neighborhoods';
     $.getJSON(neighborhoodsApi)
         .then(data => {
+            console.log(data[0]);
             for(let n in neighborhood_markers){
                 let latLng = neighborhood_markers[n].location;
                 let neighborhoodName = data[n].name;
-                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(neighborhoodName + ' (crime count)');
+                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(neighborhoodName + ' ' +  'crimeCount');
                 let marker = L.marker(latLng, {title: neighborhoodName, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
                 neighborhood_markers[n].marker = marker;
                 // console.log(neighborhood_markers[n]);
             }
 
+        }).catch(error => {
+            console.log(error);
+        });
+}
+
+function setCrimeNumber(){
+    let incidentsApi = databaseAPI+'/incidents';
+    $.getJSON(incidentsApi)
+        .then(incidentData => {
+            let count = 0;
+            for(let n in incidentData){
+                for(let i in neighborhood_markers){
+                    if(incidentData[n].neighborhood_number == i){
+                        neighborhood_markers[i].count++;
+                    }
+                }
+            }
+
+            for(let n in neighborhood_markers){
+                let popup = neighborhood_markers[n].marker.getPopup();
+                let updatedPopup = popup.getContent().replace('crimeCount', '('+ neighborhood_markers[n].count +')');
+                popup.setContent(updatedPopup);
+            }
+            
+        }).catch(error => {
+            console.log(error);
         });
 }
 
