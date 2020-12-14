@@ -131,9 +131,6 @@ function addressSearch(){
 }
 
 function updateCrimeTable(limit) {
-//TODO needs to update whenever the map changes
-//TODO currently filters on neighborhood visibility, but not on whether a specific incident is visible yet
-
 	let requestString = 'http://localhost:8000/incidents?neighborhood=' + visibleNeighborhoods().join(',')
 
 	if(limit) { // adds limit parameter, if specified
@@ -147,8 +144,6 @@ function updateCrimeTable(limit) {
 			promises[i] = new Promise((resolve,reject) => {
 				Promise.all([getJSON('http://localhost:8000/codes?code=' + rows[i].code),getJSON('http://localhost:8000/neighborhoods?id=' + rows[i].neighborhood_number)])
 					.then(data => {
-
-						// console.log(data[0])
 						resolve({
 							date: rows[i].date,
 							time: rows[i].time,
@@ -180,13 +175,13 @@ function tableRowColor(code) {
 	if (code < 500) { // murders, rapes, robberies, ag. assaults,
 		return 'red'
 	} else if (code >= 500 && code < 810 && code !== 614) { // burglaries, thefts, motor vehicle thefts
-		return 'green'
+		return '#009900'
 	} else if (code >= 810 && code < 900) { // domestic assaults
 		return 'red'
 	} else if (code >= 900 && code < 1800) { // arson, property damage, graffiti
-		return 'green'
+		return '#009900'
 	} else if (code >= 1800 && code < 2619) { // narcotics
-		return 'blue'
+		return '#0066ff'
 	} else { // other, discharging weapon, proactive visits, community events
 		return 'white'
 	}
@@ -213,7 +208,7 @@ function neighborhoodMarkers(){
                 }
             }
         }
-        
+
         for(let n in neighborhood_markers){
             console.log(data[0][n].name);
             let latLng = neighborhood_markers[n].location;
@@ -251,3 +246,6 @@ function visibleNeighborhoods() {
 	return results
 }
 
+function tableClick(date, time, address, incident) {
+	//TODO implement, all the data should be connected correctly
+}
