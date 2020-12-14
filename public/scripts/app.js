@@ -57,6 +57,10 @@ function init() {
         maxZoom: 18
     }).addTo(map);
     map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
+	map.on('moveend',(event) => {
+		console.log('map update')
+		updateCrimeTable(10) // TODO final version needs to be 1000
+	})
 
     let district_boundary = new L.geoJson();
     district_boundary.addTo(map);
@@ -116,7 +120,9 @@ function addressSearch(){
                 app.map.center.lng = data[0].lon;
                 app.map.zoom = 17;
                 map.setZoom(app.map.zoom); //set zoom for address search
-                map.panTo([app.map.center.lat, app.map.center.lng]); //pan to coordinates
+				map.panTo([app.map.center.lat, app.map.center.lng]); //pan to coordinates
+
+				updateCrimeTable(10) // TODO update to 1000
             } else {
                 alert("Address '"+app.map.address+"' not found")
             }
@@ -232,7 +238,7 @@ function setCrimeNumber(){
                 let updatedPopup = popup.getContent().replace('crimeCount', '('+ neighborhood_markers[n].count +')');
                 popup.setContent(updatedPopup);
             }
-            
+
         }).catch(error => {
             console.log(error);
         });
