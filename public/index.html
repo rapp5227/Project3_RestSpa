@@ -26,7 +26,7 @@
     <!-- End: Application -->
 </head>
 
-<body onload="init()">
+<body onload=init()>
 	<!-- Main app -->
 	<div style="height: 9rem;">
 		<div class="title">
@@ -59,7 +59,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="crime of crimes">
+					<tr v-for="crime of filteredCrimes">
 						<td :style="crime.style"> {{ crime.date }}</td>
 						<td :style="crime.style"> {{ crime.time }}</td>
 						<td :style="crime.style"> {{ crime.neighborhood }}</td>
@@ -76,12 +76,12 @@
 
 		<div id="app" class="checkbox">
 			<form onsubmit="updateCheckboxes(this); return false;">
+				<input type="reset"> <input id="submit" type="submit">
 				<ul style="list-style-type:none;">
 					<li v-for="incident of incidents">
 					<input type="checkbox" name="incidents" v-bind:value="incident" checked/> {{ incident }}
 					</li>
 				</ul>
-				<input type="reset"> <input type="submit">
 			</form>
 		</div>
 

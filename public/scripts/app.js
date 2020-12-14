@@ -88,7 +88,8 @@ function init() {
 	});
 
 	neighborhoodMarkers()
-	updateCrimeTable(10) //TODO change the limit param here to 1000 before turning in
+    updateCrimeTable(10) //TODO change the limit param here to 1000 before turning in
+
 }
 
 function getJSON(url) {
@@ -173,14 +174,19 @@ function updateCrimeTable(limit) {
 
 		Promise.all(promises).then(data => {
             app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
+            app.filteredCrimes = [];
+
             for(crime in app.crimes)
             {
-                if(app.showIncidents.indexOf(crime.incident) > -1)
+                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1)
                 {
-                    app.filteredCrimes.push(app.crime);
+                    app.filteredCrimes.push(app.crimes[crime]);
+                }
+                else if(app.showIncidents.length == 0)
+                {
+                    app.filteredCrimes.push(app.crimes[crime]);
                 }
             }
-            console.log(app.filteredCrimes);
 		})
 	})
 }
@@ -271,6 +277,8 @@ function updateCheckboxes(form)
 {
     var incidents = form.incidents;
 
+    app.showIncidents = [];
+
     for (let i=0; i<incidents.length; i++) {
         if (incidents[i].checked) {
           app.showIncidents.push(incidents[i].value);
@@ -280,5 +288,4 @@ function updateCheckboxes(form)
       updateCrimeTable(10);
 
     console.log("updating checkboxes");
-    console.log(app.showIncidents);
 }
