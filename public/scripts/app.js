@@ -291,5 +291,13 @@ function updateCheckboxes(form)
 }
 
 function tableClick(date, time, address, incident) {
-	//TODO implement, all the data should be connected correctly
+    //TODO implement, all the data should be connected correctly
+    let prettyAddress = address.replace("X",0);
+    prettyAddress = prettyAddress.replace("FORD PA", "FORD PARKWAY");
+
+    getLatLng(prettyAddress).then(data => {
+        let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(prettyAddress + ": " + date + ", " + time + ": " + incident);
+        let marker = L.marker([data[0].lat, data[0].lon], {title: prettyAddress, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
+    });
+
 }
