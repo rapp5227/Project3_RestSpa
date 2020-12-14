@@ -289,3 +289,7 @@ function updateCheckboxes(form)
 
     console.log("updating checkboxes");
 }
+
+function tableClick(date, time, address, incident) {
+	//TODO implement, all the data should be connected correctly
+}
