@@ -28,7 +28,7 @@
 
 <body onload="init()">
 	<!-- Main app -->
-	<div style="height: 10rem;">
+	<div style="height: 9rem;">
 		<div class="title">
 		St. Paul Crime Map
 		</div>
@@ -61,13 +61,25 @@
 				</tbody>
 			</table>
 		</div>
+
 		<div id="leafletmap"></div>
+
+		<div id="app" class="checkbox">
+			<form onsubmit="updateCheckboxes(this); return false;">
+				<ul style="list-style-type:none;">
+					<li v-for="incident of incidents">
+					<input type="checkbox" name="incidents" v-bind:value="incident" checked/> {{ incident }}
+					</li>
+				</ul>
+				<input type="reset"> <input type="submit">
+			</form>
+		</div>
+
 		<div id="inputs">
             		Address
             		<input type="text"  v-model="map.address"/>
             		<button type="button" @click="addressSearch">Go</button>
 		</div>
-	   
     </div>
 </body>
 </html>

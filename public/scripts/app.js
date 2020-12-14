@@ -21,6 +21,8 @@ let neighborhood_markers =
     {location: [44.949203, -93.093739], marker: null, count: 0}
 ];
 
+
+
 function init() {
     let crime_url = 'http://localhost:8000';
 
@@ -46,8 +48,19 @@ function init() {
 				placeholder: "Search",
                 value: ""
 			},
-			crimes: []
+            crimes: [],
+            filteredCrimes: [],
+            showIncidents: [],
+            incidents: []
 		}
+    });
+
+    getJSON('http://localhost:8000/codes').then(rows => {
+
+        for(let i = 0; i < rows.length; i++)
+        {
+            app.incidents.push(rows[i].type);
+        }
     });
 
     map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
@@ -134,7 +147,7 @@ function updateCrimeTable(limit) {
 //TODO needs to update whenever the map changes
 //TODO currently filters on neighborhood visibility, but not on whether a specific incident is visible yet
 
-	let requestString = 'http://localhost:8000/incidents?neighborhood=' + visibleNeighborhoods().join(',')
+    let requestString = 'http://localhost:8000/incidents?neighborhood=' + visibleNeighborhoods().join(',')
 
 	if(limit) { // adds limit parameter, if specified
 		requestString += '&limit=' + limit
@@ -147,8 +160,6 @@ function updateCrimeTable(limit) {
 			promises[i] = new Promise((resolve,reject) => {
 				Promise.all([getJSON('http://localhost:8000/codes?code=' + rows[i].code),getJSON('http://localhost:8000/neighborhoods?id=' + rows[i].neighborhood_number)])
 					.then(data => {
-
-						// console.log(data[0])
 						resolve({
 							date: rows[i].date,
 							time: rows[i].time,
@@ -157,14 +168,22 @@ function updateCrimeTable(limit) {
 							incident: data[0][0].type,
 							style: {
 								backgroundColor: tableRowColor(rows[i].code)
-							}
+                            }
 						})
 					})
 			})
 		}
 
 		Promise.all(promises).then(data => {
-			app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
+            app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
+            for(crime in app.crimes)
+            {
+                if(app.showIncidents.indexOf(crime.incident) > -1)
+                {
+                    app.filteredCrimes.push(app.crime);
+                }
+            }
+            console.log(app.filteredCrimes);
 		})
 	})
 }
@@ -251,3 +270,18 @@ function visibleNeighborhoods() {
 	return results
 }
 
+function updateCheckboxes(form)
+{
+    var incidents = form.incidents;
+
+    for (let i=0; i<incidents.length; i++) {
+        if (incidents[i].checked) {
+          app.showIncidents.push(incidents[i].value);
+        }
+      }
+
+      updateCrimeTable(10);
+
+    console.log("updating checkboxes");
+    console.log(app.showIncidents);
+}

@@ -65,7 +65,7 @@ body{
 }
 
 .column{
-    display: inline;
+    display: block;
     float: left;
     width: 30%;
     margin: 1%;
@@ -74,19 +74,16 @@ body{
 img{
     display: inline;
     max-width: 15%;
-    height: auto;
+    
+    height: 21rem;
 }
 
 .half{
-    float: right;
+    float: left;
     display: inline;
     width: 40%;
     margin: 1%;
     text-align: left;
-}
-
-.ol{
-
 }
 
 #tableContainer
@@ -104,4 +101,10 @@ table, th, td
 th, td
 {
 	width: 20%;
+}
+
+.checkbox{
+    display: inline;
+    color: teal;
+    float: left;
 }
