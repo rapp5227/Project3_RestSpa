@@ -54,7 +54,11 @@ function init() {
             incidents: [],
             neighborhoods: [],
             showNeighborhoods: [],
-            numCrimes: 10
+            startTime: "00:00",
+            endTime: "23:59",
+            numCrimes: 10,
+            startDate: "2014-08-14",
+            endDate: new Date().toISOString().slice(0, 10)
 		}
     });
 
@@ -189,7 +193,7 @@ function updateCrimeTable(limit) {
 
             for(crime in app.crimes)
             {
-                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1)
+                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) >= Date.parse("2000-01-01T"+app.startTime) && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) <= Date.parse("2000-01-01T"+app.endTime) && Date.parse(app.crimes[crime].date) >= Date.parse(app.startDate) && Date.parse(app.crimes[crime].date) <= Date.parse(app.endDate))
                 {
                     app.filteredCrimes.push(app.crimes[crime]);
                 }
@@ -294,6 +298,15 @@ function updateCheckboxes(form)
 {
     var incidents = form.incidents;
     var neighborhoods = form.neighborhoods;
+    var startTime = form.startTime;
+    var endTime = form.endTime;
+    var startDate = form.startDate;
+    var endDate = form.endDate;
+
+    app.startTime = startTime.value;
+    app.endTime = endTime.value;
+    app.startDate = startDate.value;
+    app.endDate = endDate.value;
 
     app.numCrimes = form.numCrimes.value;
 
