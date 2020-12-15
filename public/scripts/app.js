@@ -51,7 +51,10 @@ function init() {
             crimes: [],
             filteredCrimes: [],
             showIncidents: [],
-            incidents: []
+            incidents: [],
+            neighborhoods: [],
+            showNeighborhoods: [],
+            numCrimes: 10
 		}
     });
 
@@ -60,6 +63,14 @@ function init() {
         for(let i = 0; i < rows.length; i++)
         {
             app.incidents.push(rows[i].type);
+        }
+    });
+
+    getJSON('http://localhost:8000/neighborhoods').then(rows => {
+
+        for(let i = 0; i < rows.length; i++)
+        {
+            app.neighborhoods.push(rows[i].name);
         }
     });
 
@@ -88,7 +99,7 @@ function init() {
 	});
 
 	neighborhoodMarkers()
-    updateCrimeTable(10) //TODO change the limit param here to 1000 before turning in
+    updateCrimeTable(app.numCrimes) //TODO change the limit param here to 1000 before turning in
 
 }
 
@@ -135,7 +146,7 @@ function addressSearch(){
                 map.setZoom(app.map.zoom); //set zoom for address search
 				map.panTo([app.map.center.lat, app.map.center.lng]); //pan to coordinates
 
-				updateCrimeTable(10) // TODO update to 1000
+				updateCrimeTable(app.numCrimes) // TODO update to 1000
             } else {
                 alert("Address '"+app.map.address+"' not found")
             }
@@ -178,11 +189,11 @@ function updateCrimeTable(limit) {
 
             for(crime in app.crimes)
             {
-                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1)
+                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1)
                 {
                     app.filteredCrimes.push(app.crimes[crime]);
                 }
-                else if(app.showIncidents.length == 0)
+                else if(app.showIncidents.length == 0 || app.showNeighborhoods.length == 0)
                 {
                     app.filteredCrimes.push(app.crimes[crime]);
                 }
@@ -218,6 +229,12 @@ let databaseAPI = 'http://localhost:8000';
 
 let neighborhoodImage = L.icon({
     iconUrl: 'img/neighborhood.png',
+    iconSize: [25, 25],
+    popupAnchor: [0, -7]
+});
+
+let tableClickImage = L.icon({
+    iconUrl: 'img/tableClick.png',
     iconSize: [25, 25],
     popupAnchor: [0, -7]
 });
@@ -276,28 +293,49 @@ function visibleNeighborhoods() {
 function updateCheckboxes(form)
 {
     var incidents = form.incidents;
+    var neighborhoods = form.neighborhoods;
+
+    app.numCrimes = form.numCrimes.value;
 
     app.showIncidents = [];
+    app.showNeighborhoods = [];
 
     for (let i=0; i<incidents.length; i++) {
         if (incidents[i].checked) {
           app.showIncidents.push(incidents[i].value);
         }
-      }
+    }
 
-      updateCrimeTable(10);
+    for (let i=0; i<neighborhoods.length; i++) {
+        if (neighborhoods[i].checked) {
+          app.showNeighborhoods.push(neighborhoods[i].value);
+        }
+    }
+
+      updateCrimeTable(app.numCrimes);
 
     console.log("updating checkboxes");
 }
 
 function tableClick(date, time, address, incident) {
     //TODO implement, all the data should be connected correctly
-    let prettyAddress = address.replace("X",0);
+    let prettyAddress = address.replace("0X","00");
+    prettyAddress = prettyAddress.replace("1X","10");
+    prettyAddress = prettyAddress.replace("2X","20");
+    prettyAddress = prettyAddress.replace("3X","30");
+    prettyAddress = prettyAddress.replace("4X","40");
+    prettyAddress = prettyAddress.replace("5X","50");
+    prettyAddress = prettyAddress.replace("6X","60");
+    prettyAddress = prettyAddress.replace("7X","70");
+    prettyAddress = prettyAddress.replace("8X","80");
+    prettyAddress = prettyAddress.replace("9X","90");
     prettyAddress = prettyAddress.replace("FORD PA", "FORD PARKWAY");
+
+    console.log(prettyAddress);
 
     getLatLng(prettyAddress).then(data => {
         let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(prettyAddress + ": " + date + ", " + time + ": " + incident);
-        let marker = L.marker([data[0].lat, data[0].lon], {title: prettyAddress, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
+        let marker = L.marker([data[0].lat, data[0].lon], {title: prettyAddress, icon:tableClickImage}).bindPopup(popup).addTo(map).openPopup();
     });
 
 }

@@ -72,11 +72,26 @@
 
 		</div>
 
+		<div id="inputs">
+			Address
+			<input type="text"  v-model="map.address"/>
+			<button type="button" @click="addressSearch">Go</button>
+		</div>
+		<br/><br/><br/>
 		<div id="leafletmap"></div>
 
 		<div id="app" class="checkbox">
 			<form onsubmit="updateCheckboxes(this); return false;">
+				<input type="text" name="numCrimes" v-bind:value="numCrimes"> # of crimes visible
+				<br/><br/>
 				<input type="reset"> <input id="submit" type="submit">
+				<br/>
+				<ul style="list-style-type:none;">
+					<li v-for="neighborhood of neighborhoods">
+					<input type="checkbox" name="neighborhoods" v-bind:value="neighborhood" checked/> {{ neighborhood }}
+					</li>
+				</ul>
+				<br/>
 				<ul style="list-style-type:none;">
 					<li v-for="incident of incidents">
 					<input type="checkbox" name="incidents" v-bind:value="incident" checked/> {{ incident }}
@@ -85,11 +100,7 @@
 			</form>
 		</div>
 
-		<div id="inputs">
-            		Address
-            		<input type="text"  v-model="map.address"/>
-            		<button type="button" @click="addressSearch">Go</button>
-		</div>
+
     </div>
 </body>
 </html>
