@@ -263,7 +263,7 @@ function neighborhoodMarkers(){
             let neighborhoodName = data[0][n].name;
             let crimeCount = neighborhood_markers[n].count;
             let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(neighborhoodName + ' ' +  '('+ crimeCount +')');
-            let marker = L.marker(latLng, {title: neighborhoodName, icon:neighborhoodImage}).bindPopup(popup).addTo(map).openPopup();
+            let marker = L.marker(latLng, {title: neighborhoodName, icon:neighborhoodImage}).bindPopup(popup).addTo(map);
             neighborhood_markers[n].marker = marker;
         }
 
@@ -330,6 +330,90 @@ function updateCheckboxes(form)
     console.log("updating checkboxes");
 }
 
+function getMarkerIcon(incident){
+    let image;
+    if(incident.startsWith('Murder',0)){
+        image = 'img/Murder.png';
+    } 
+    
+    else if (incident.startsWith('Rape',0)){
+        image = 'img/Rape.png';
+    } 
+
+    else if (incident.startsWith('Robbery',0)){
+        image = 'img/Robbery.png';
+    } 
+
+    else if (incident.startsWith('Aggravated Assault',0)){
+        image = 'img/AggravatedAssault.png';
+    } 
+
+    else if (incident.startsWith('Burglary',0)){
+        image = 'img/Burglary.png';
+    } 
+
+    else if (incident.startsWith('Att. Burglary',0)){
+        image = 'img/AttBurglary.png';
+    }
+
+    else if (incident.startsWith('Theft',0)){
+        image = 'img/Theft.png';
+    } 
+
+    else if (incident.startsWith('Motor Vehicle Theft',0)){
+        image = 'img/MVT.png';
+    } 
+
+    else if (incident.startsWith('Att. Motor Vehicle Theft',0)){
+        image = 'img/AttMVT.png';
+    } 
+
+    else if (incident.startsWith('Asasult',0)){
+        image = 'img/Asasult.png';
+    } 
+
+    else if (incident.startsWith('Arson',0)){
+        image = 'img/Arson.png';
+    } 
+
+    else if (incident.startsWith('Criminal Damage to Property',0)){
+        image = 'img/CDP.png';
+    } 
+    
+    else if (incident.startsWith('Graffiti',0)){
+        image = 'img/Graffiti.png';
+    } 
+
+    else if (incident.startsWith('Graffiti-Gang',0)){
+        image = 'img/Graffiti-Gang.png';
+    } 
+
+    else if (incident.startsWith('Narcotics',0)){
+        image = 'img/Narcotics.png';
+    } 
+
+    else if (incident.startsWith('Weapons',0)){
+        image = 'img/Weapons.png';
+    } 
+
+    else if (incident.startsWith('Proactive Police Visit',0)){
+        image = 'img/PPV.png';
+    } 
+
+    else if (incident.startsWith('Community Engagement Event',0)){
+        image = 'img/CEE.png';
+    } 
+
+    else{
+        image = 'img/other.png';
+    }
+    return L.icon({
+        iconUrl: image,
+        iconSize: [40, 40],
+        popupAnchor: [0, -7]
+    });
+}
+
 function tableClick(date, time, address, incident) {
     //TODO implement, all the data should be connected correctly
     let prettyAddress = address.replace("0X","00");
@@ -348,7 +432,7 @@ function tableClick(date, time, address, incident) {
 
     getLatLng(prettyAddress).then(data => {
         let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(prettyAddress + ": " + date + ", " + time + ": " + incident);
-        let marker = L.marker([data[0].lat, data[0].lon], {title: prettyAddress, icon:tableClickImage}).bindPopup(popup).addTo(map).openPopup();
+        let marker = L.marker([data[0].lat, data[0].lon], {title: prettyAddress, icon:getMarkerIcon(incident)}).bindPopup(popup).addTo(map).openPopup();
     });
 
 }
