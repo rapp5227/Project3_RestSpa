@@ -107,3 +107,7 @@ th, td
     display: inline;
     color: teal;
 }
+
+.right_header {
+    float: right;
+}
