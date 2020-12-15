@@ -41,22 +41,43 @@ function init() {
                     se: {lat: 44.883658, lng: -92.993787}
                 }
 			},
+			search: {
+				go: () => {
+                    go(this.value)
+                },
+				placeholder: "Search",
+                value: ""
+			},
             crimes: [],
             filteredCrimes: [],
             showIncidents: [],
             incidents: [],
-            incidentMarkers: []
+            incidentMarkers: [],
+            neighborhoods: [],
+            showNeighborhoods: [],
+            startTime: "00:00",
+            endTime: "23:59",
+            numCrimes: 10,
+            startDate: "2014-08-14",
+            endDate: new Date().toISOString().slice(0, 10)
 		}
     });
 
     getJSON('http://localhost:8000/codes').then(rows => {
+
         for(let i = 0; i < rows.length; i++)
         {
             app.incidents.push(rows[i].type);
         }
-    }).catch(error => {
-        console.log(error);
-    });;
+    });
+
+    getJSON('http://localhost:8000/neighborhoods').then(rows => {
+
+        for(let i = 0; i < rows.length; i++)
+        {
+            app.neighborhoods.push(rows[i].name);
+        }
+    });
 
     map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -66,8 +87,8 @@ function init() {
     }).addTo(map);
     map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
 	map.on('moveend',(event) => {
-		// console.log('map update')
-		updateCrimeTable(1000) // TODO final version needs to be 1000
+		console.log('map update')
+		updateCrimeTable(app.numCrimes) // TODO final version needs to be 1000
 	})
 
     let district_boundary = new L.geoJson();
@@ -81,9 +102,10 @@ function init() {
     }).catch((error) => {
         console.log('Error:', error);
 	});
-    
+
 	neighborhoodMarkers()
-	updateCrimeTable(1000) //TODO change the limit param here to 1000 before turning in
+    updateCrimeTable(app.numCrimes) //TODO change the limit param here to 1000 before turning in
+
 }
 
 function getJSON(url) {
@@ -157,18 +179,21 @@ function updateCrimeTable(limit) {
 
 		Promise.all(promises).then(data => {
             app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
+            app.filteredCrimes = [];
+
             for(crime in app.crimes)
             {
-                if(app.showIncidents.indexOf(crime.incident) > -1)
+                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) >= Date.parse("2000-01-01T"+app.startTime) && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) <= Date.parse("2000-01-01T"+app.endTime) && Date.parse(app.crimes[crime].date) >= Date.parse(app.startDate) && Date.parse(app.crimes[crime].date) <= Date.parse(app.endDate))
                 {
-                    app.filteredCrimes.push(app.crime);
+                    app.filteredCrimes.push(app.crimes[crime]);
+                }
+                else if(app.showIncidents.length == 0 || app.showNeighborhoods.length == 0)
+                {
+                    app.filteredCrimes.push(app.crimes[crime]);
                 }
             }
-            // console.log(app.filteredCrimes);
 		})
-	}).catch(error => {
-        console.log(error);
-    });
+	})
 }
 
 function tableRowColor(code) {
@@ -302,8 +327,8 @@ function tableClick(date, time,address, incident){
     getLatLng(prettyAddress)
         .then(data => {
             if(data.length > 0) {
-                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(prettyAddress + ": " + date + ", " + time + ": " + incident);
-                let marker = L.marker([data[0].lat, data[0].lon], {icon: getMarkerIcon(incident), title: prettyAddress}).bindPopup(popup).addTo(map);
+                let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(prettyAddress + '<br/>' + date + ", " + time + "<br/>" + incident);
+                let marker = L.marker([data[0].lat, data[0].lon], {icon: getMarkerIcon(incident), title: prettyAddress}).bindPopup(popup).addTo(map).openPopup();
                 app.incidentMarkers.push(marker);
             } else {
                 alert("Address '"+address+"' not found");
@@ -402,4 +427,3 @@ function updateCheckboxes(form)
 
     // console.log("updating checkboxes");
 }
-
