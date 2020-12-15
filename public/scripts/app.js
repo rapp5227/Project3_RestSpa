@@ -251,7 +251,7 @@ function neighborhoodMarkers(){
     .then((data) => {
         for(let n in data[1]){
             for(let i in neighborhood_markers){
-                if(data[1][n].neighborhood_number == i){
+                if(data[1][n].neighborhood_number == i+1){
                     neighborhood_markers[i].count++;
                 }
             }
