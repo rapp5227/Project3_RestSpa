@@ -187,7 +187,7 @@ function updateCrimeTable(limit) {
 
             for(crime in app.crimes)
             {
-                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 )
+                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) >= Date.parse("2000-01-01T"+app.startTime) && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) <= Date.parse("2000-01-01T"+app.endTime) && Date.parse(app.crimes[crime].date) >= Date.parse(app.startDate) && Date.parse(app.crimes[crime].date) <= Date.parse(app.endDate))
                 {
                     app.filteredCrimes.push(app.crimes[crime]);
                 }
