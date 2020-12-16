@@ -4,8 +4,18 @@
     "description": "RESTful Web Server and Single Page Application",
     "author": {
         "name": "Chase Rapp",
-        "email": "rapp5227@stthomas.edu"
-    },
+        "email": "chase.rapp@stthomas.edu"
+	},
+	"contributors": [
+		{
+			"name": "Abeney Ayana",
+			"email": "ayan3842@stthomas.edu"
+		},
+		{
+			"name": "Reid Sobania",
+			"email": "reid.sobania@stthomas.edu"
+		}
+	],
     "main": "server.js",
     "repository": {
         "type": "git",
