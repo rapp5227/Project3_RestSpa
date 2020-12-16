@@ -57,7 +57,7 @@ function init() {
             showNeighborhoods: [],
             startTime: "00:00",
             endTime: "23:59",
-            numCrimes: 10,
+            numCrimes: 1000,
             startDate: "2014-08-14",
             endDate: new Date().toISOString().slice(0, 10)
 		}
@@ -88,7 +88,7 @@ function init() {
     map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
 	map.on('moveend',(event) => {
 		console.log('map update')
-		updateCrimeTable(app.numCrimes) // TODO final version needs to be 1000
+		updateCrimeTable(app.numCrimes)
 	})
 
     let district_boundary = new L.geoJson();
@@ -104,7 +104,7 @@ function init() {
 	});
 
 	neighborhoodMarkers()
-    updateCrimeTable(app.numCrimes) //TODO change the limit param here to 1000 before turning in
+    updateCrimeTable(app.numCrimes)
 
 }
 
@@ -140,7 +140,7 @@ function addressSearch(){
                 map.setZoom(app.map.zoom); //set zoom for address search
 				map.panTo([app.map.center.lat, app.map.center.lng]); //pan to coordinates
 
-				updateCrimeTable(10) // TODO update to 1000
+				updateCrimeTable(app.numCrimes)
             } else {
                 alert("Address '"+app.map.address+"' not found")
             }
