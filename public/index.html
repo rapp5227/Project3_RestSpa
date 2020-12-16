@@ -40,7 +40,7 @@
 
     <div id="app">
 		<div id="leafletmap"></div>
-		
+
 		<div id="inputs">
 			Click on the markers to view the neighborhood name and crimes count.
 			<br/>
@@ -52,7 +52,7 @@
 			<button type="button" @click="deleteIncidentMarkers">Delete</button>
 		</div>
 		<br/><br/><br/>
-		
+
 		<div id = 'tableContainer'>
 			<table class="right_header" style="width: 9rem; margin-bottom: 1rem;">
 				<th>Key</th>
@@ -73,7 +73,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="crime of filteredCrimes">
+					<tr v-for="crime of crimes">
 						<td :style="crime.style"> {{ crime.date }}</td>
 						<td :style="crime.style"> {{ crime.time }}</td>
 						<td :style="crime.style"> {{ crime.neighborhood }}</td>
@@ -86,12 +86,13 @@
 
 		</div>
 
-		
+
 
 		<div id="app" class="right_header">
-			
-			<form onsubmit="updateCheckboxes(this); return false;">
-				<input type="reset" onclick="window.location.reload()"> <input id="submit" type="submit">
+
+			<form id = 'form'>
+				<input type="reset" onclick="window.location.reload()"/>
+				<input id="submit" type="button" value = "Submit" onclick = "updateCheckboxes()">
 				<br/><br/>
 				<input type="text" name="numCrimes" v-bind:value="numCrimes"> # of crimes visible
 				<br/>
@@ -106,13 +107,13 @@
 				<br/><br/>
 				<ul style="list-style-type:none;">
 					<li v-for="neighborhood of neighborhoods">
-					<input type="checkbox" name="neighborhoods" v-bind:value="neighborhood" checked/> {{ neighborhood }}
+					<input type="checkbox" name="neighborhoods" v-bind:value="neighborhood.id" checked/> {{ neighborhood.name }}
 					</li>
 				</ul>
 				<br/>
 				<ul style="list-style-type:none;">
 					<li v-for="incident of incidents">
-					<input type="checkbox" name="incidents" v-bind:value="incident" checked/> {{ incident }}
+					<input type="checkbox" name="incidents" v-bind:value="incident.code" checked/> {{ incident.type }}
 					</li>
 				</ul>
 			</form>

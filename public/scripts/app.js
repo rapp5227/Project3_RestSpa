@@ -21,7 +21,8 @@ let neighborhood_markers =
     {location: [44.949203, -93.093739], marker: null, count: 0}
 ];
 
-
+let incidentSql
+let neighborhoodSql
 
 function init() {
     let crime_url = 'http://localhost:8000';
@@ -49,7 +50,6 @@ function init() {
                 value: ""
 			},
             crimes: [],
-            filteredCrimes: [],
             showIncidents: [],
             incidents: [],
             incidentMarkers: [],
@@ -63,48 +63,48 @@ function init() {
 		}
     });
 
-    getJSON('http://localhost:8000/codes').then(rows => {
+	Promise.all([getJSON('http://localhost:8000/codes'), getJSON('http://localhost:8000/neighborhoods')])
+	.then(data => {
+		incidentSql = data[0]
+		neighborhoodSql = data[1]
 
-        for(let i = 0; i < rows.length; i++)
-        {
-            app.incidents.push(rows[i].type);
-        }
-    });
+		for(x of incidentSql) {
+			app.incidents.push(x);
+			app.showIncidents.push(x.code)
+		}
 
-    getJSON('http://localhost:8000/neighborhoods').then(rows => {
+		for(x of neighborhoodSql) {
+			app.neighborhoods.push(x)
+			app.showNeighborhoods.push(x.id)
+		}
 
-        for(let i = 0; i < rows.length; i++)
-        {
-            app.neighborhoods.push(rows[i].name);
-        }
-    });
+		map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			minZoom: 11,
+			maxZoom: 18
+		}).addTo(map);
+		map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
+		map.on('moveend',(event) => {
+			console.log('map update')
+			updateCrimeTable()
+		})
 
-    map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        minZoom: 11,
-        maxZoom: 18
-    }).addTo(map);
-    map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
-	map.on('moveend',(event) => {
-		console.log('map update')
-		updateCrimeTable(app.numCrimes)
+		let district_boundary = new L.geoJson();
+		district_boundary.addTo(map);
+
+		getJSON('data/StPaulDistrictCouncil.geojson').then((result) => {
+			// St. Paul GeoJSON
+			$(result.features).each(function(key, value) {
+				district_boundary.addData(value);
+			});
+		}).catch((error) => {
+			console.log('Error:', error);
+		});
+
+		neighborhoodMarkers()
+		updateCrimeTable()
 	})
-
-    let district_boundary = new L.geoJson();
-    district_boundary.addTo(map);
-
-    getJSON('data/StPaulDistrictCouncil.geojson').then((result) => {
-        // St. Paul GeoJSON
-        $(result.features).each(function(key, value) {
-            district_boundary.addData(value);
-        });
-    }).catch((error) => {
-        console.log('Error:', error);
-	});
-
-	neighborhoodMarkers()
-    updateCrimeTable(app.numCrimes)
 
 }
 
@@ -140,7 +140,7 @@ function addressSearch(){
                 map.setZoom(app.map.zoom); //set zoom for address search
 				map.panTo([app.map.center.lat, app.map.center.lng]); //pan to coordinates
 
-				updateCrimeTable(app.numCrimes)
+				updateCrimeTable()
             } else {
                 alert("Address '"+app.map.address+"' not found")
             }
@@ -149,53 +149,42 @@ function addressSearch(){
         });
 }
 
-function updateCrimeTable(limit) {
-	console.log('working on it')
+function updateCrimeTable() {
+
 	let requestString = 'http://localhost:8000/incidents?neighborhood=' + visibleNeighborhoods().join(',')
 		+ '&start_date=' + app.startDate + 'T' + app.startTime
 		+ '&end_date=' + app.endDate + 'T' + app.endTime
-
-	if(limit) { // adds limit parameter, if specified
-		requestString += '&limit=' + limit
-	}
+		+ '&limit=' + app.numCrimes
+		+ '&code=' + app.showIncidents.join(',')
 
 	getJSON(requestString).then(rows => {
 		let promises = new Array(rows.length)
 
 		for(let i = 0;i < rows.length;i++) {
 			promises[i] = new Promise((resolve,reject) => {
-				Promise.all([getJSON('http://localhost:8000/codes?code=' + rows[i].code),getJSON('http://localhost:8000/neighborhoods?id=' + rows[i].neighborhood_number)])
-					.then(data => {
-						resolve({
-							date: rows[i].date,
-							time: rows[i].time,
-							neighborhood: data[1][0].name,
-							address: rows[i].block,
-							incident: data[0][0].type,
-							style: {
-								backgroundColor: tableRowColor(rows[i].code)
-                            }
-						})
-					})
+				let thisNeighborhood
+				for(x of neighborhoodSql) {
+					if(rows[i].neighborhood_number === x.id) {
+						thisNeighborhood = x.name
+						break
+					}
+				}
+
+				resolve({
+					date: rows[i].date,
+					time: rows[i].time,
+					neighborhood: thisNeighborhood,
+					address: rows[i].block,
+					incident: rows[i].incident,
+					style: {
+						backgroundColor: tableRowColor(rows[i].code)
+					}
+				})
 			})
 		}
 
 		Promise.all(promises).then(data => {
 			app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
-			console.log(data.length)
-            app.filteredCrimes = [];
-
-            for(crime in app.crimes)
-            {
-                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) >= Date.parse("2000-01-01T"+app.startTime) && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) <= Date.parse("2000-01-01T"+app.endTime) && Date.parse(app.crimes[crime].date) >= Date.parse(app.startDate) && Date.parse(app.crimes[crime].date) <= Date.parse(app.endDate))
-                {
-                    app.filteredCrimes.push(app.crimes[crime]);
-                }
-                else if(app.showIncidents.length == 0 || app.showNeighborhoods.length == 0)
-                {
-                    app.filteredCrimes.push(app.crimes[crime]);
-                }
-            }
 		})
 	})
 }
@@ -325,8 +314,11 @@ function tableClick(date, time,address, incident){
     prettyAddress = prettyAddress.replace("6X","60");
     prettyAddress = prettyAddress.replace("7X","70");
     prettyAddress = prettyAddress.replace("8X","80");
-    prettyAddress = prettyAddress.replace("9X","90");
-    prettyAddress = prettyAddress.replace("FORD PA", "FORD PARKWAY");
+	prettyAddress = prettyAddress.replace("9X","90");
+
+	// some of the db's address abbreviations don't play well with nominatim. Below are fixes for the ones we noticed, but we probably missed a few.
+	prettyAddress = prettyAddress.replace("FORD PA", "FORD PARKWAY");
+	prettyAddress = prettyAddress.replace(" AV "," AVE ")
 
     getLatLng(prettyAddress)
         .then(data => {
@@ -377,27 +369,26 @@ function neighborhoodMarkers(){
 
 function visibleNeighborhoods() {
 	// returns a list of the neighborhood numbers that are visible on the map
-		// based on the neighborhood center, so it might look weird at times
+		// based on the neighborhood center
 
 	let results = []
 
-	for(let i = 0;i < neighborhood_markers.length;i++) {
-		let x = neighborhood_markers[i]
+	for(x of app.showNeighborhoods) {
+		let index = x-1
 
-		let bounds = map.getBounds()
+		let location = neighborhood_markers[index]
 
-		if(bounds.contains(L.latLng(x.location[0],x.location[1]))) {
-			results.push(i+1)
+		if(map.getBounds().contains(L.latLng(location.location[0],location.location[1]))) {
+			results.push(x)
 		}
-    }
-
+	}
 	return results
 }
 
-
-
-function updateCheckboxes(form)
+function updateCheckboxes()
 {
+	form = document.getElementById('form')
+
     var incidents = form.incidents;
     var neighborhoods = form.neighborhoods;
     var startTime = form.startTime;
@@ -427,7 +418,5 @@ function updateCheckboxes(form)
         }
     }
 
-      updateCrimeTable(app.numCrimes);
-
-    // console.log("updating checkboxes");
+	  updateCrimeTable();
 }
