@@ -150,7 +150,10 @@ function addressSearch(){
 }
 
 function updateCrimeTable(limit) {
+	console.log('working on it')
 	let requestString = 'http://localhost:8000/incidents?neighborhood=' + visibleNeighborhoods().join(',')
+		+ '&start_date=' + app.startDate + 'T' + app.startTime
+		+ '&end_date=' + app.endDate + 'T' + app.endTime
 
 	if(limit) { // adds limit parameter, if specified
 		requestString += '&limit=' + limit
@@ -178,12 +181,13 @@ function updateCrimeTable(limit) {
 		}
 
 		Promise.all(promises).then(data => {
-            app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
+			app.crimes = [].concat(data) // concat is used to make sure the table is re-rendered
+			console.log(data.length)
             app.filteredCrimes = [];
 
             for(crime in app.crimes)
             {
-                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) >= Date.parse("2000-01-01T"+app.startTime) && Date.parse(("2000-01-01T"+app.crimes[crime].time).substring(0,16)) <= Date.parse("2000-01-01T"+app.endTime) && Date.parse(app.crimes[crime].date) >= Date.parse(app.startDate) && Date.parse(app.crimes[crime].date) <= Date.parse(app.endDate))
+                if(app.showIncidents.indexOf(app.crimes[crime].incident) > -1 && app.showNeighborhoods.indexOf(app.crimes[crime].neighborhood) > -1 )
                 {
                     app.filteredCrimes.push(app.crimes[crime]);
                 }
@@ -231,23 +235,23 @@ function getMarkerIcon(incident){
     let image;
     if(incident.startsWith('Murder',0)){
         image = 'img/Murder.png';
-    } 
-    
+    }
+
     else if (incident.startsWith('Rape',0)){
         image = 'img/Rape.png';
-    } 
+    }
 
     else if (incident.startsWith('Robbery',0)){
         image = 'img/Robbery.png';
-    } 
+    }
 
     else if (incident.startsWith('Aggravated Assault',0)){
         image = 'img/AggravatedAssault.png';
-    } 
+    }
 
     else if (incident.startsWith('Burglary',0)){
         image = 'img/Burglary.png';
-    } 
+    }
 
     else if (incident.startsWith('Att. Burglary',0)){
         image = 'img/AttBurglary.png';
@@ -255,51 +259,51 @@ function getMarkerIcon(incident){
 
     else if (incident.startsWith('Theft',0)){
         image = 'img/Theft.png';
-    } 
+    }
 
     else if (incident.startsWith('Motor Vehicle Theft',0)){
         image = 'img/MVT.png';
-    } 
+    }
 
     else if (incident.startsWith('Att. Motor Vehicle Theft',0)){
         image = 'img/AttMVT.png';
-    } 
+    }
 
     else if (incident.startsWith('Asasult',0)){
         image = 'img/Asasult.png';
-    } 
+    }
 
     else if (incident.startsWith('Arson',0)){
         image = 'img/Arson.png';
-    } 
+    }
 
     else if (incident.startsWith('Criminal Damage to Property',0)){
         image = 'img/CDP.png';
-    } 
-    
+    }
+
     else if (incident.startsWith('Graffiti',0)){
         image = 'img/Graffiti.png';
-    } 
+    }
 
     else if (incident.startsWith('Graffiti-Gang',0)){
         image = 'img/Graffiti-Gang.png';
-    } 
+    }
 
     else if (incident.startsWith('Narcotics',0)){
         image = 'img/Narcotics.png';
-    } 
+    }
 
     else if (incident.startsWith('Weapons',0)){
         image = 'img/Weapons.png';
-    } 
+    }
 
     else if (incident.startsWith('Proactive Police Visit',0)){
         image = 'img/PPV.png';
-    } 
+    }
 
     else if (incident.startsWith('Community Engagement Event',0)){
         image = 'img/CEE.png';
-    } 
+    }
 
     else{
         image = 'img/other.png';
@@ -386,7 +390,7 @@ function visibleNeighborhoods() {
 			results.push(i+1)
 		}
     }
-    
+
 	return results
 }
 
