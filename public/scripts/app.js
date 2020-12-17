@@ -2,27 +2,27 @@ let app;
 let map;
 let neighborhood_markers =
 [
-    {location: [44.942068, -93.020521], marker: null, count: 0},
-    {location: [44.977413, -93.025156], marker: null, count: 0},
-    {location: [44.931244, -93.079578], marker: null, count: 0},
-    {location: [44.956192, -93.060189], marker: null, count: 0},
-    {location: [44.978883, -93.068163], marker: null, count: 0},
-    {location: [44.975766, -93.113887], marker: null, count: 0},
-    {location: [44.959639, -93.121271], marker: null, count: 0},
-    {location: [44.947700, -93.128505], marker: null, count: 0},
-    {location: [44.930276, -93.119911], marker: null, count: 0},
-    {location: [44.982752, -93.147910], marker: null, count: 0},
-    {location: [44.963631, -93.167548], marker: null, count: 0},
-    {location: [44.973971, -93.197965], marker: null, count: 0},
-    {location: [44.949043, -93.178261], marker: null, count: 0},
-    {location: [44.934848, -93.176736], marker: null, count: 0},
-    {location: [44.913106, -93.170779], marker: null, count: 0},
-    {location: [44.937705, -93.136997], marker: null, count: 0},
-    {location: [44.949203, -93.093739], marker: null, count: 0}
+    {location: [44.942068, -93.020521], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.977413, -93.025156], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.931244, -93.079578], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.956192, -93.060189], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.978883, -93.068163], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.975766, -93.113887], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.959639, -93.121271], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.947700, -93.128505], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.930276, -93.119911], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.982752, -93.147910], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.963631, -93.167548], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.973971, -93.197965], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.949043, -93.178261], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.934848, -93.176736], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.913106, -93.170779], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.937705, -93.136997], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0},
+    {location: [44.949203, -93.093739], marker: null, crimeCount: 0, policeVisits: 0, totalActivity: 0}
 ];
 
-let incidentSql
-let neighborhoodSql
+let incidentSql;
+let neighborhoodSql;
 
 function init() {
     let crime_url = 'http://localhost:8000';
@@ -65,8 +65,8 @@ function init() {
 
 	Promise.all([getJSON('http://localhost:8000/codes'), getJSON('http://localhost:8000/neighborhoods')])
 	.then(data => {
-		incidentSql = data[0]
-		neighborhoodSql = data[1]
+		incidentSql = data[0];
+		neighborhoodSql = data[1];
 
 		for(x of incidentSql) {
 			app.incidents.push(x);
@@ -74,8 +74,8 @@ function init() {
 		}
 
 		for(x of neighborhoodSql) {
-			app.neighborhoods.push(x)
-			app.showNeighborhoods.push(x.id)
+			app.neighborhoods.push(x);
+			app.showNeighborhoods.push(x.id);
 		}
 
 		map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
@@ -86,8 +86,8 @@ function init() {
 		}).addTo(map);
 		map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
 		map.on('moveend',(event) => {
-			console.log('map update')
-			updateCrimeTable()
+			console.log('map update');
+			updateCrimeTable();
 		})
 
 		let district_boundary = new L.geoJson();
@@ -102,10 +102,15 @@ function init() {
 			console.log('Error:', error);
 		});
 
-		neighborhoodMarkers()
-		updateCrimeTable()
+		neighborhoodMarkers();
+		updateCrimeTable();
 	})
 
+}
+
+function getLatLng(address){
+    let res = 'https://nominatim.openstreetmap.org/search?format=json&country=United States&state=MN&city=St. Paul&street='+address;
+    return $.getJSON(res);
 }
 
 function getJSON(url) {
@@ -123,13 +128,8 @@ function getJSON(url) {
     });
 }
 
-function getLatLng(address){
-    let api = 'https://nominatim.openstreetmap.org/search?format=json&country=United States&state=MN&city=St. Paul&street='+address;
-    return $.getJSON(api);
-}
 
 function addressSearch(){
-
     getLatLng(app.map.address)
         .then(data => {
 
@@ -212,13 +212,7 @@ function tableRowColor(code) {
 	}
 }
 
-let databaseAPI = 'http://localhost:8000';
 
-let neighborhoodImage = L.icon({
-    iconUrl: 'img/neighborhood.png',
-    iconSize: [25, 25],
-    popupAnchor: [0, -7]
-});
 
 function getMarkerIcon(incident){
     let image;
@@ -343,21 +337,32 @@ function deleteIncidentMarkers(){
 
 
 function neighborhoodMarkers(){
-    let neighborhoodsApi = databaseAPI+'/neighborhoods';
-    let incidentsApi = databaseAPI+'/incidents';
+    let neighborhoods = 'http://localhost:8000/neighborhoods';
+    let incidents = 'http://localhost:8000/incidents';
+    let neighborhoodImg = L.icon({iconUrl: 'img/neighborhood.png',iconSize: [25, 25],popupAnchor: [0, -7]});
 
-    Promise.all([getJSON(neighborhoodsApi), getJSON(incidentsApi)])
+    Promise.all([getJSON(neighborhoods), getJSON(incidents)])
     .then((data) => {
         for(let n in data[1]){
-            neighborhood_markers[(data[1][n].neighborhood_number)-1].count++;
+            console.log(data[1][n].incident)
+            if (data[1][n].incident.startsWith('Proactive Police Visit',0)){
+                neighborhood_markers[(data[1][n].neighborhood_number)-1].policeVisits++;
+            }
+            else{
+                neighborhood_markers[(data[1][n].neighborhood_number)-1].crimeCount++;
+            }
+
+            neighborhood_markers[(data[1][n].neighborhood_number)-1].totalActivity++;
         }
 
         for(let n in neighborhood_markers){
             let latLng = neighborhood_markers[n].location;
             let neighborhoodName = data[0][n].name;
-            let crimeCount = neighborhood_markers[n].count;
-            let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(neighborhoodName + ' ' +  '- '+ crimeCount +' Crimes');
-            let marker = L.marker(latLng, {title: neighborhoodName, icon:neighborhoodImage}).bindPopup(popup).addTo(map);
+            let totalActivity = neighborhood_markers[n].totalActivity;
+            let crimeCount = neighborhood_markers[n].crimeCount;
+            let policeVisits = neighborhood_markers[n].policeVisits;
+            let popup = L.popup({closeOnClick: false, autoClose: false}).setContent(neighborhoodName + ' ' +  '- '+ totalActivity +' activities <br/>' + crimeCount + ' crimes <br/>' + policeVisits + ' police visits');
+            let marker = L.marker(latLng, {title: neighborhoodName, icon:neighborhoodImg}).bindPopup(popup).addTo(map);
             neighborhood_markers[n].marker = marker;
         }
 
@@ -420,3 +425,4 @@ function updateCheckboxes()
 
 	  updateCrimeTable();
 }
+
